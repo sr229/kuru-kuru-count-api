@@ -21,7 +21,7 @@ redisClient.connect();
 
 const logger = morgan('":method :url HTTP/:http-version" :status :res[content-length] ":user-agent"');
 const limiter = rateLimit({
-    windowMs: 5000,
+    windowMs: 1000,
     max: 1
 });
 
