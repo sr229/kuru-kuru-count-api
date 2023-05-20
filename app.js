@@ -52,6 +52,7 @@ app.post('/update', async (req, res) => {
     }
 
     const updatedCount = parseInt(counter) + req.body.count;
+    console.log(req.body.count);
 
     await redisClient.set('counter', updatedCount);
     res.sendStatus(200);
