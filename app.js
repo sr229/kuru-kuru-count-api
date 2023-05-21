@@ -45,7 +45,7 @@ app.post('/update', async (req, res) => {
     console.log(req.body);
     if (!req.body.count ||
         !Number.isInteger(req.body.count) ||
-        req.body.count < 0 ||
+        req.body.count < 1 ||
         // check if reqeuest is from an event
         req.body.e === undefined ||
         !req.body.e.isTrusted) {
