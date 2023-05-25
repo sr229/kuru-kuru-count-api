@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const redis = require('redis');
+const redisRatelimitStore = require("rate-limit-redis");
 require('dotenv').config();
 
 // middleware
@@ -11,8 +12,9 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 // connect to Redis database
+// NOTE: this will be reused by the rate limiter too!
 const redisClient = redis.createClient({
-    url: process.env.URL,
+    url: process.env.REDIS_URL,
     password: process.env.PASSWORD
 });
 
@@ -21,18 +23,25 @@ redisClient.connect();
 
 const logger = morgan('":method :url HTTP/:http-version" :status :res[content-length] ":user-agent"');
 const limiter = rateLimit({
-    windowMs: 1000,
-    max: 1
+    windowMs: 60 * 1000, // 1 minute
+    max: 5,
+    standardHeaders: true,
+    legacyHeaders: false,
+    store: new redisRatelimitStore({
+        sendCommand: (...args) => redisClient.sendCommand(args),
+        prefix: 'rate-limit',
+    })
 });
 
 app.use(logger);
-//app.use(limiter);
+app.use(limiter);
 
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
     next();
 });
+
 app.use(bodyParser.json());
 
 app.get('/sync', async (req, res) => {
