@@ -36,7 +36,7 @@ const limiter = rateLimit({
 app.use(logger);
 app.use(limiter);
 
-app.use((req, res, next) => {
+app.use((res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
     next();

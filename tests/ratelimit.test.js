@@ -4,6 +4,7 @@ const http = require("http");
 describe("Kuru kuru~!", () => {
     it("should be able to rate limit", () => {
         let counter = 0;
+        let body = JSON.stringify({ count: 3, e: { isTrusted: true } });
         // spam 10 requests in a second and expect a 429
         for (let i = 0; i < 10; i++) {
             let reqClient = http
@@ -14,7 +15,8 @@ describe("Kuru kuru~!", () => {
                         path: "/update",
                         method: "POST",
                         headers: {
-                            "Content-Type": "application/json"
+                            "Content-Type": "application/json",
+                            "Content-Length": body.length
                         }
                     },
                     (res) => {
@@ -27,7 +29,7 @@ describe("Kuru kuru~!", () => {
                     expect(e).toBe(null);
                     console.error(`problem with request: ${e.message}`);
                 });
-            reqClient.write(JSON.stringify({ count: 3, e: { isTrusted: true } }));
+            reqClient.write(body);
             reqClient.end();
             reqClient.destroy();
         }
